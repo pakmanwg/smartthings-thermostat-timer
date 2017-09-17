@@ -21,7 +21,7 @@
 
 definition(
     name: "Thermostat Timer",
-    namespace: "pakmanw",
+    namespace: "pakmanwg",
     author: "pakmanw@sbcglobal.net",
     description: "Turn off Themostat after certain amount of time",
     category: "Green Living",
