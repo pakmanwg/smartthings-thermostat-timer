@@ -31,15 +31,18 @@ definition(
 )
 
 preferences {
-	section("When switch pushed..."){
-		input "switch1", "capability.switch"
+    section("When switch on..."){
+	input "switch1", "capability.switch"
+    }
+    section("When button pushed..."){
+	input "button1", "capability.button"
+    }
+    section("Choose Thermostat(s)"){
+	input "thermostat1", "capability.thermostat"
     }
     section("Minutes..."){
         input "minutes", "number", range: "1..*", title: "Minutes", required: true
     }
-    section("Choose Thermostat(s)"){
-		input "thermostat1", "capability.thermostat"
-	}
     section("Set temperatures") {
         input "opHeatSet", "decimal", title: "When Heating", description: "Heating temperature"
         input "opCoolSet", "decimal", title: "When Cooling", description: "Cooling temperature"
@@ -51,25 +54,27 @@ preferences {
 }
 
 def installed() {
-	log.debug "Installed with settings: ${settings}"
-	subscribe(switch1, "switch.on", switchOnHandler)
+    log.debug "Installed with settings: ${settings}"
+    subscribe(switch1, "switch.on", turnOnThermostat)
+    subscribe(button1, "button.pushed", turnOnThermostat)
 }
 
 def updated(settings) {
-	log.debug "Updated with settings: ${settings}"
-	unsubscribe()
-	subscribe(switch1, "switch.on", switchOnHandler)
+    log.debug "Updated with settings: ${settings}"
+    unsubscribe()
+    subscribe(switch1, "switch.on", turnOnThermstat)
+    subscribe(button1, "button.pushed", turnOnThermostat)
 }
 
-def switchOnHandler(evt) {
-	thermostat1.setCoolingSetpoint(opCoolSet)
+def turnOnThermostat(evt) {
+    thermostat1.setCoolingSetpoint(opCoolSet)
     thermostat1.setHeatingSetpoint(opHeatSet)
     def delay = 60 * minutes
-	runIn(delay, turnOffThermostat)
+    runIn(delay, turnOffThermostat)
 }
 
 def turnOffThermostat() {
     switch1.off()
-	thermostat1.setCoolingSetpoint(defCoolSet)
+    thermostat1.setCoolingSetpoint(defCoolSet)
     thermostat1.setHeatingSetpoint(defHeatSet)
 }
