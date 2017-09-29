@@ -55,18 +55,25 @@ preferences {
 
 def installed() {
     log.debug "Installed with settings: ${settings}"
-    subscribe(switch1, "switch.on", turnOnThermostat)
-    subscribe(button1, "button.pushed", turnOnThermostat)
+    subscribe(switch1, "switch.on", turnOnThermostat1)
+    subscribe(button1, "button.pushed", turnOnThermostat2)
 }
 
 def updated(settings) {
     log.debug "Updated with settings: ${settings}"
     unsubscribe()
-    subscribe(switch1, "switch.on", turnOnThermstat)
-    subscribe(button1, "button.pushed", turnOnThermostat)
+    subscribe(switch1, "switch.on", turnOnThermostat1)
+    subscribe(button1, "button.pushed", turnOnThermostat2)
 }
 
-def turnOnThermostat(evt) {
+def turnOnThermostat1(evt) {
+    thermostat1.setCoolingSetpoint(opCoolSet)
+    thermostat1.setHeatingSetpoint(opHeatSet)
+    def delay = 60 * minutes
+    runIn(delay, turnOffThermostat)
+}
+
+def turnOnThermostat2(evt) {
     thermostat1.setCoolingSetpoint(opCoolSet)
     thermostat1.setHeatingSetpoint(opHeatSet)
     def delay = 60 * minutes
@@ -78,3 +85,4 @@ def turnOffThermostat() {
     thermostat1.setCoolingSetpoint(defCoolSet)
     thermostat1.setHeatingSetpoint(defHeatSet)
 }
+
