@@ -84,7 +84,7 @@ def turnOnThermostatb(evt) {
     if (state.lastStatus == "off") {
         switch1.On()
     } else {
-        switch1.off()
+        switch1.Off()
     }
 }
 
@@ -95,6 +95,6 @@ def turnOffThermostat() {
 }
 
 def switchOff() {
-    switch1.off()
+    switch1.Off()
 }
 
