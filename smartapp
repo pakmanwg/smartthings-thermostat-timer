@@ -15,7 +15,8 @@
  *  Author: pakmanw@sbcglobal.net
  *
  *  Change Log
- *  2017-9-17 - v01.01 Created
+ *  2017-9-17  - v01.01 Created
+ *  2017-11-25 - v01.02 Add Switch Off function, single target temperature
  *
  */
 
@@ -32,20 +33,19 @@ definition(
 
 preferences {
     section("When switch on..."){
-	input "switch1", "capability.switch"
+	    input "switch1", "capability.switch"
     }
     section("When button pushed..."){
-	input "button1", "capability.button"
+	    input "button1", "capability.button"
     }
     section("Choose Thermostat(s)"){
-	input "thermostat1", "capability.thermostat"
+	    input "thermostat1", "capability.thermostat"
     }
     section("Minutes..."){
         input "minutes", "number", range: "1..*", title: "Minutes", required: true
     }
-    section("Set temperatures") {
-        input "opHeatSet", "decimal", title: "When Heating", description: "Heating temperature"
-        input "opCoolSet", "decimal", title: "When Cooling", description: "Cooling temperature"
+    section("Set Target temperature") {
+        input "opSet", "decimal", title: "Temperature", required: true
     }
     section("Default temperatures") {
         input "defHeatSet", "decimal", title: "When Heating", description: "Default Heating temperature"
@@ -55,34 +55,46 @@ preferences {
 
 def installed() {
     log.debug "Installed with settings: ${settings}"
-    subscribe(switch1, "switch.on", turnOnThermostat1)
-    subscribe(button1, "button.pushed", turnOnThermostat2)
+    subscribe(switch1, "switch.on", turnOnThermostat)
+    subscribe(button1, "button.pushed", turnOnThermostatb)
+    subscribe(switch1, "switch.off", turnOffThermostat)
+    state.lastStatus = "off"
 }
 
 def updated(settings) {
     log.debug "Updated with settings: ${settings}"
     unsubscribe()
-    subscribe(switch1, "switch.on", turnOnThermostat1)
-    subscribe(button1, "button.pushed", turnOnThermostat2)
+    subscribe(switch1, "switch.on", turnOnThermostat)
+    subscribe(button1, "button.pushed", turnOnThermostatb)
+    subscribe(switch1, "switch.off", turnOffThermostat)
 }
 
-def turnOnThermostat1(evt) {
-    thermostat1.setCoolingSetpoint(opCoolSet)
-    thermostat1.setHeatingSetpoint(opHeatSet)
+def turnOnThermostat(evt) {
+    state.lastStatus = "on"
+    if (opSet < thermostat1.currentValue("temperature")) {
+        thermostat1.setCoolingSetpoint(opSet)
+    } else {
+        thermostat1.setHeatingSetpoint(opSet)
+    }
     def delay = 60 * minutes
-    runIn(delay, turnOffThermostat)
+    runIn(delay, switchOff)
 }
 
-def turnOnThermostat2(evt) {
-    thermostat1.setCoolingSetpoint(opCoolSet)
-    thermostat1.setHeatingSetpoint(opHeatSet)
-    def delay = 60 * minutes
-    runIn(delay, turnOffThermostat)
+def turnOnThermostatb(evt) {
+    if (state.lastStatus == "off") {
+        switch1.On()
+    } else {
+        switch1.off()
+    }
 }
 
 def turnOffThermostat() {
-    switch1.off()
+    state.lastStatus = "off"
     thermostat1.setCoolingSetpoint(defCoolSet)
     thermostat1.setHeatingSetpoint(defHeatSet)
+}
+
+def switchOff() {
+    switch1.off()
 }
 
