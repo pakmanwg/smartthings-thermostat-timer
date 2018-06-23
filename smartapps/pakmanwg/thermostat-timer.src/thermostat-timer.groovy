@@ -17,6 +17,7 @@
  *  Change Log
  *  2017-9-17  - v01.01 Created
  *  2017-11-25 - v01.02 Add Switch Off function, single target temperature
+ *  2018-06-23 - v01.03 Remove support for button, set default temperature
  *
  */
 
@@ -35,28 +36,24 @@ preferences {
     section("When switch on..."){
 	    input "switch1", "capability.switch"
     }
-    section("When button pushed..."){
-	    input "button1", "capability.button"
-    }
     section("Choose Thermostat(s)"){
 	    input "thermostat1", "capability.thermostat"
     }
     section("Minutes..."){
-        input "minutes", "number", range: "1..*", title: "Minutes", required: true
+        input "minutes", "number", range: "1..*", title: "Minutes", required: true, defaultValue: 30
     }
     section("Set Target temperature") {
-        input "opSet", "decimal", title: "Temperature", required: true
+        input "opSet", "decimal", title: "Temperature", required: true, defaultValue: 70
     }
     section("Default temperatures") {
-        input "defHeatSet", "decimal", title: "When Heating", description: "Default Heating temperature"
-        input "defCoolSet", "decimal", title: "When Cooling", description: "Default Cooling temperature"
+        input "defHeatSet", "decimal", title: "When Heating", description: "Default Heating temperature", required: true, defaultValue: 55
+        input "defCoolSet", "decimal", title: "When Cooling", description: "Default Cooling temperature", required: true, defaultValue: 85
     }
 }
 
 def installed() {
     log.debug "Installed with settings: ${settings}"
     subscribe(switch1, "switch.on", turnOnThermostat)
-    subscribe(button1, "button.pushed", turnOnThermostatb)
     subscribe(switch1, "switch.off", turnOffThermostat)
     state.lastStatus = "off"
 }
@@ -65,7 +62,6 @@ def updated(settings) {
     log.debug "Updated with settings: ${settings}"
     unsubscribe()
     subscribe(switch1, "switch.on", turnOnThermostat)
-    subscribe(button1, "button.pushed", turnOnThermostatb)
     subscribe(switch1, "switch.off", turnOffThermostat)
 }
 
@@ -80,15 +76,7 @@ def turnOnThermostat(evt) {
     runIn(delay, switchOff)
 }
 
-def turnOnThermostatb(evt) {
-    if (state.lastStatus == "off") {
-        switch1.On()
-    } else {
-        switch1.Off()
-    }
-}
-
-def turnOffThermostat() {
+def turnOffThermostat(evt) {
     state.lastStatus = "off"
     thermostat1.setCoolingSetpoint(defCoolSet)
     thermostat1.setHeatingSetpoint(defHeatSet)
