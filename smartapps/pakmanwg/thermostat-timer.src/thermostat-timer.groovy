@@ -83,5 +83,5 @@ def turnOffThermostat(evt) {
 }
 
 def switchOff() {
-    switch1.Off()
+    switch1.off()
 }
