@@ -17,7 +17,7 @@
  *  Change Log
  *  2017-9-17  - v01.01 Created
  *  2017-11-25 - v01.02 Add Switch Off function, single target temperature
- *  2018-06-23 - v01.03 Remove support for button, set default temperature
+ *  2018-07-07 - v01.03 Remove support for button, set default temperature
  *
  */
 
@@ -69,8 +69,10 @@ def turnOnThermostat(evt) {
     state.lastStatus = "on"
     if (opSet < thermostat1.currentValue("temperature")) {
         thermostat1.setCoolingSetpoint(opSet)
+        state.lastSet = "cool"
     } else {
         thermostat1.setHeatingSetpoint(opSet)
+        state.lastSet = "heat"
     }
     def delay = 60 * minutes
     runIn(delay, switchOff)
@@ -78,8 +80,11 @@ def turnOnThermostat(evt) {
 
 def turnOffThermostat(evt) {
     state.lastStatus = "off"
-    thermostat1.setCoolingSetpoint(defCoolSet)
-    thermostat1.setHeatingSetpoint(defHeatSet)
+    if (state.lastSet == "cool") {
+        thermostat1.setCoolingSetpoint(defCoolSet)
+    } else {
+        thermostat1.setHeatingSetpoint(defHeatSet)
+    }
 }
 
 def switchOff() {
