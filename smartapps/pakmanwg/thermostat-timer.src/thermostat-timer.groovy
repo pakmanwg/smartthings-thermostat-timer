@@ -68,12 +68,13 @@ def updated(settings) {
 def turnOnThermostat(evt) {
     state.lastStatus = "on"
     if (opSet < thermostat1.currentValue("temperature")) {
-        thermostat1.setCoolingSetpoint(opSet)
+        thermostat1.setCoolingSetpoint(opSet)	
         state.lastSet = "cool"
     } else {
         thermostat1.setHeatingSetpoint(opSet)
         state.lastSet = "heat"
     }
+    thermostat1.setThermostatSetpoint(opSet)
     def delay = 60 * minutes
     runIn(delay, switchOff)
 }
@@ -82,8 +83,10 @@ def turnOffThermostat(evt) {
     state.lastStatus = "off"
     if (state.lastSet == "cool") {
         thermostat1.setCoolingSetpoint(defCoolSet)
+	thermostat1.setThermostatSetpoint(defCoolSet)
     } else {
         thermostat1.setHeatingSetpoint(defHeatSet)
+	thermostat1.setThermostatSetpoint(defHeatSet)
     }
 }
 
