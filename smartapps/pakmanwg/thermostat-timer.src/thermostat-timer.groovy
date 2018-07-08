@@ -17,7 +17,8 @@
  *  Change Log
  *  2017-9-17  - v01.01 Created
  *  2017-11-25 - v01.02 Add Switch Off function, single target temperature
- *  2018-07-07 - v01.03 Remove support for button, set default temperature
+ *  2018-06-23 - v01.03 Remove support for button, set default temperature
+ *  2018-07-07 - v01.04 Fix for NST which reset cool/heat point to thermostat point if thermostat point is not set during turn off
  *
  */
 
